@@ -1,0 +1,20 @@
+environment: ${ENVIRONMENT}
+
+mongodb:
+  uri: ${MONGODB_URI}
+  driver: ${MONGODB_DRIVER}
+  username: ${MONGODB_USERNAME}
+  password: ${MONGODB_PASSWORD}
+
+telegram:
+  suport:
+    token: ${TELEGRAM_BOT_SUPPORT_TOKEN}
+    chatId: ${TELEGRAM_BOT_SUPORT_CHAT_ID}
+
+bots:
+  diffGols: ${DIFF_GOLS_BOT_NAME}
+
+
+bet:
+  url: ${BET_URL}
+  apiUrl: ${BET_API_URL}
