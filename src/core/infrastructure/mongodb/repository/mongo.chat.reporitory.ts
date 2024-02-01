@@ -66,6 +66,7 @@ export class MongoChatRepository implements ChatInterface {
   }
 
   async updateCache() {
+    memoryCache.get('chats').clear();
     let chats = await this.colelction.find().toArray();
     chats = chats
       .map((chat: unknown) => chat as unknown as Chat)

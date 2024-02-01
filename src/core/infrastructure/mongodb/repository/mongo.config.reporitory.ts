@@ -19,19 +19,16 @@ export class MongoConfigRepository implements ConfigRepository {
 
   async getApiConfigs() {
     const document = await this.colelction.findOne({ name: 'api' });
-    console.log('api', document);
     return document;
   }
 
   async getDiffGols(league: string) {
     const document = await this.colelction.findOne({ name: 'diff-gols' });
-    console.log('league', document.diff.find((item: { league: string }) => item.league === league).gols);
     return document.diff.find((item: { league: string }) => item.league === league).gols;
   }
 
   async getSchedule(bot_name: string) {
     const document = await this.colelction.findOne({ name: bot_name });
-    console.log('schedule', document.schedule);
     return document.schedule;
   }
 }
