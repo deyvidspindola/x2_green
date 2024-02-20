@@ -1,7 +1,7 @@
 import { Container } from 'typescript-ioc';
-import config from '#/core/infrastructure/configuration/ioc.config';
-import { MongoDb } from '#/core/infrastructure/mongodb';
-import { Bots } from '#/bots/interfaces';
+import config from '#/infrastructure/configuration/ioc.config';
+import { MongoDb } from '#/infrastructure/mongodb';
+import { Bots } from '#/interfaces';
 
 Container.configure(...config);
 
