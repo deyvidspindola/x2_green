@@ -13,8 +13,10 @@ telegram:
 
 bots:
   diffGols: ${DIFF_GOLS_BOT_NAME}
+  diffGolsToken: ${DIFF_GOLS_BOT_TOKEN}
 
 
 bet:
   url: ${BET_URL}
   apiUrl: ${BET_API_URL}
+  apiToken: ${BET_API_TOKEN}

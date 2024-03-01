@@ -8,10 +8,14 @@ import { GameRepository } from '#/domain/repository/game.repository';
 import { MongoGameRepository } from '#/infrastructure/mongodb/repository/mongo.game.repository';
 import { MessageRepository } from '#/domain/repository/message.repository';
 import { MongoMessageRepository } from '#/infrastructure/mongodb/repository/mongo.message.repository';
+import { loggerFactory } from '#/infrastructure/configuration/logger-factory';
+import { Logger } from '@vizir/simple-json-logger';
 
 const configDevFile = () => yaml.load(fs.readFileSync('config/server-config.yml', 'utf8'));
 
 export default [
+  // logger
+  { bind: Logger, factory: loggerFactory },
   { bindName: 'config', to: configDevFile() },
   { bind: ChatRepository, to: MongoChatRepository },
   { bind: GameRepository, to: MongoGameRepository },

@@ -9,15 +9,22 @@ import { _todayNow } from '#/domain/utils';
 import { Bot, GrammyError } from 'grammy';
 import { StatusCodes } from 'http-status-codes';
 import { Container, Factory, Inject, ObjectFactory } from 'typescript-ioc';
+import { Logger } from '@vizir/simple-json-logger';
+import { Menu, MenuRange } from '@grammyjs/menu';
+import moment from 'moment';
+import { Configurations } from '#/infrastructure/configuration/configurations';
 
 export const diffGolsStoryFactory: ObjectFactory = () => {
-  const bot = new Bot('6963027528:AAFHOPLulyuy7tE_HPrhc7o4ykwfTeAdyC8');
+  const config = Container.get(Configurations);
+  const bot = new Bot(config.botDiffGolsToken);
   return new DiffGolsBot(bot);
 };
 
 @Factory(diffGolsStoryFactory)
 export class DiffGolsBot {
   private readonly chat: ChatRepository;
+  @Inject
+  private readonly logger: Logger;
   constructor(
     @Inject
     private readonly bot: Bot,
@@ -27,13 +34,15 @@ export class DiffGolsBot {
   }
 
   async start() {
+    this.logger.info('Bot Diff Gols telegram iniciado');
     this.bot.start();
     await this.subscribe();
     await this.unsubscribe();
-    await this.report();
+    await this.reports();
   }
 
   async subscribe() {
+    this.logger.info('Bot Diff Gols telegram subscribe');
     this.bot.command(BotCommands.START, async (ctx) => {
       const { chat_id, name, first_name, last_name } = _getChatData(ctx);
       if (await this.chat.exists(chat_id)) {
@@ -76,7 +85,59 @@ export class DiffGolsBot {
     });
   }
 
-  async report() {
+  async reports() {
+    const months = [
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
+    ];
+
+    const reportsMenu = new Menu('reports')
+      .text('Relatorio Parcial Diario', async (ctx) => {
+        await Container.get(DiffGolsReportUseCase).sendPartailDailyReportSendGames(ctx.chat?.id.toString());
+      })
+      .row()
+      .submenu('Relatorio Mensal', 'report-months')
+      .row()
+      .text('Relatorio do Mês Atual', async (ctx) => {
+        const month = moment().month();
+        await Container.get(DiffGolsReportUseCase).sendCurrentMonthlyReportSendGames(
+          ctx.chat?.id.toString(),
+          month.toString(),
+        );
+      })
+      .row();
+
+    const reportMontsMenu = new Menu('report-months')
+      .dynamic(() => {
+        const range = new MenuRange();
+        for (let i = 0; i < 12; i++) {
+          range
+            .text(months[i], async (ctx) => {
+              await Container.get(DiffGolsReportUseCase).sendCurrentMonthlyReportSendGames(
+                ctx.chat?.id.toString(),
+                i.toString(),
+              );
+            })
+            .row();
+        }
+        return range;
+      })
+      .back('Voltar');
+
+    reportsMenu.register(reportMontsMenu);
+    this.bot.use(reportsMenu);
+    this.bot.use(reportMontsMenu);
+
     this.bot.command(BotCommands.REPORT, async (ctx) => {
       const { chat_id, name } = _getChatData(ctx);
       if (!(await this.chat.exists(chat_id))) {
@@ -86,11 +147,12 @@ export class DiffGolsBot {
         });
         return;
       }
-      await Container.get(DiffGolsReportUseCase).sendPartailReport(chat_id);
+      await ctx.reply('Relatórios', { reply_markup: reportsMenu });
     });
   }
 
   async sendMessage(message: SendMessage): Promise<TelegramMessage> {
+    this.logger.info('Bot Diff Gols telegram sendMessage', { message });
     return await this.bot.api
       .sendMessage(message.chat_id, message.message, {
         parse_mode: 'HTML',
@@ -107,8 +169,9 @@ export class DiffGolsBot {
       });
   }
 
-  async editMessage(message: EditMessage) {
-    await this.bot.api.editMessageText(message.chat_id, message.message_id, message.message, {
+  async editMessage(message: EditMessage): Promise<void> {
+    this.logger.info('Bot Diff Gols telegram editMessage', { message });
+    await this.bot.api.editMessageText(message.chat_id, Number(message.message_id), message.message, {
       parse_mode: 'HTML',
       link_preview_options: {
         is_disabled: true,

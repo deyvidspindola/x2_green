@@ -1,0 +1,11 @@
+export enum LeagueId {
+  EIGHT_MINNUTES = 10047781,
+  TEN_MINNUTES = 10078337,
+  TWELVE_MINNUTES = 10048705,
+}
+
+export enum LeagueDiff {
+  EIGHT_MINNUTES = 3,
+  TEN_MINNUTES = 4,
+  TWELVE_MINNUTES = 4,
+}

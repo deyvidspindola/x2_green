@@ -4,17 +4,19 @@ import { MessageRepository } from '#/domain/repository/message.repository';
 import { BetApi } from '#/infrastructure/api';
 import { DiffGolsBot } from '#/infrastructure/telegram/diff-gols';
 import { _sendSuport, _sendSuportError, _todayNow } from '#/domain/utils';
-import { Container, Inject } from 'typescript-ioc';
+import { Inject } from 'typescript-ioc';
 import { schedule } from 'node-cron';
 import { Inplay } from '#/domain/entities/inplay';
 import { _calcDiff, _formatTeam, _hasSend, _lastGoal, _saveSend } from './utils';
 import { Chat } from '#/domain/entities/chat';
 import { Configurations } from '#/infrastructure/configuration/configurations';
 import { Message } from '#/domain/entities/message';
-import { ConfigRepository } from '#/domain/repository/config.repository';
+import { Logger } from '@vizir/simple-json-logger';
 
 export class DiffGolsUseCase {
   constructor(
+    @Inject
+    private readonly looger: Logger,
     @Inject
     private readonly bot: DiffGolsBot,
     @Inject
@@ -29,8 +31,6 @@ export class DiffGolsUseCase {
     private readonly configuration: Configurations,
   ) {}
 
-  botName = this.configuration.botDiffGolsName;
-
   async execute() {
     await this.initialize();
     await this.startBot();
@@ -38,15 +38,15 @@ export class DiffGolsUseCase {
   }
 
   private async initialize() {
+    this.looger.info('Bot Diff Gols iniciado');
     await this.bot.start();
-    this.chat.setDatabase(this.botName);
-    this.message.setDatabase(this.botName);
-    this.game.setDatabase(this.botName);
+    this.chat.setDatabase(this.configuration.botDiffGolsName);
+    this.message.setDatabase(this.configuration.botDiffGolsName);
+    this.game.setDatabase(this.configuration.botDiffGolsName);
   }
 
   private async startBot() {
-    const runTime = await Container.get(ConfigRepository).getSchedule(this.botName);
-    schedule(runTime, async () => {
+    schedule('*/2 * * * * *', async () => {
       await this.process();
     });
   }
@@ -60,11 +60,13 @@ export class DiffGolsUseCase {
       this.sendToBot(chats, games);
       this.saveGames(games);
     } catch (error) {
+      this.looger.error(`Erro ao processar o bot Diff Gols: ${JSON.stringify(error)}`);
       _sendSuportError('Erro ao processar o bot Diff Gols');
     }
   }
 
   private async sendToBot(chats: Chat[], games: Inplay[]) {
+    this.looger.info('Enviando dados para o bot');
     await Promise.all(
       games.map(async (game: Inplay) => {
         if (!(await this.shouldSend(game))) return;
@@ -75,6 +77,7 @@ export class DiffGolsUseCase {
   }
 
   private async sendToChat(chats: Chat[], game: Inplay) {
+    this.looger.info('Enviando mensagem para o chat');
     const message = await this.createMessage(game);
     const MessageIds = await Promise.all(
       chats.map(async (chat: Chat) => {
@@ -111,13 +114,14 @@ export class DiffGolsUseCase {
   }
 
   private async saveMessage(messageIds: (number | null)[], chats: Chat[], game: Inplay, message: string) {
+    this.looger.info('Salvando mensagem no banco de dados');
     const message_ids = messageIds.filter((id) => id !== null) as number[];
     const chat_ids = chats.map((chat) => chat.chat_id);
     await this.message.save({
       message_id: JSON.stringify(message_ids),
       chat_id: JSON.stringify(chat_ids),
       bet_id: Number(game.id),
-      event_id: Number(game.ev_id),
+      event_id: game.ev_id,
       league_id: Number(game.league.id),
       league: game.league.name,
       message: message,
@@ -127,6 +131,7 @@ export class DiffGolsUseCase {
   }
 
   private async saveGames(games: Inplay[]) {
+    this.looger.info('Salvando jogos no banco de dados');
     games.map(async (game) => {
       this.game.save({
         bet_id: Number(game.id),

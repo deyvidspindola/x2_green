@@ -3,7 +3,7 @@ export interface Message {
   message_id: string;
   chat_id: string;
   bet_id: number;
-  event_id: number;
+  event_id: string;
   league_id: number;
   league: string;
   message: string;

@@ -69,12 +69,19 @@ export class Configurations {
     return this.getEnvVariable(this.config.bet.apiUrl);
   }
 
+  public get betApiToken(): string {
+    return this.getEnvVariable(this.config.bet.apiToken);
+  }
+
   /**
    * BOTS
    */
 
   public get botDiffGolsName(): string {
     return this.getEnvVariable(this.config.bots.diffGols);
+  }
+  public get botDiffGolsToken(): string {
+    return this.getEnvVariable(this.config.bots.diffGolsToken);
   }
 
   private getEnvVariable(value: any) {

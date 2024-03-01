@@ -18,6 +18,10 @@ export class MongoGameRepository implements GameInterface {
     this.collection = this.client.db(database).collection('games');
   }
 
+  async game(bet_id: number): Promise<Game> {
+    return await this.collection.findOne({ bet_id });
+  }
+
   async games(filter: GameFilter): Promise<Game[]> {
     let query = {};
     if (filter !== null) {

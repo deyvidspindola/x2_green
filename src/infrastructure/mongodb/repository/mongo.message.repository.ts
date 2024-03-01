@@ -35,10 +35,6 @@ export class MongoMessageRepository implements MessageInterface {
   }
 
   async messages(filter: MessageFilter): Promise<Message[]> {
-    let messages = _getCache('messages');
-    if (messages) {
-      return messages;
-    }
     let query = {};
     if (filter !== null) {
       query = {
@@ -58,9 +54,9 @@ export class MongoMessageRepository implements MessageInterface {
         }
       }
     }
-    messages = await this.collection.find(query).toArray();
+
+    let messages = await this.collection.find(query).toArray();
     messages = messages.map((message: unknown) => message as unknown as Message);
-    _setCache('messages', messages, 60000);
     return messages;
   }
 
@@ -69,7 +65,6 @@ export class MongoMessageRepository implements MessageInterface {
     const message = await this.collection.findOne({
       message_id: { $regex: regex },
     });
-    console.log('message', message);
     return message;
   }
 }

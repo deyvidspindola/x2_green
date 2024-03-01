@@ -1,19 +1,21 @@
 import axios from 'axios';
-import { Inject } from 'typescript-ioc';
-import { ConfigRepository } from '#/domain/repository/config.repository';
 import { _sendSuportError, _todayNow } from '#/domain/utils';
 import { EventsFilter, InplayFilter } from '#/domain/entities/inplay';
 import { EventSTTypes } from '#/domain/enums/events-st-types';
+import { Inject } from 'typescript-ioc';
+import { Configurations } from '#/infrastructure/configuration/configurations';
+import { Logger } from '@vizir/simple-json-logger';
 
 export class BetApi {
-  constructor(
-    @Inject
-    private readonly config: ConfigRepository,
-  ) {}
+  @Inject
+  private readonly configuration: Configurations;
+  @Inject
+  private readonly logger: Logger;
 
   private async api(params: any) {
     try {
-      const { api_url, api_token } = await this.config.getApiConfigs();
+      const api_url = this.configuration.betApiUrl;
+      const api_token = this.configuration.betApiToken;
       const url = `${api_url}${params.url}`;
       const options = {
         url: url,
@@ -24,8 +26,10 @@ export class BetApi {
           'X-RapidAPI-Host': 'betsapi2.p.rapidapi.com',
         },
       };
+      this.logger.info(`Requisições para a API: ${JSON.stringify(options)}`);
       return await axios.request(options);
     } catch (error) {
+      this.logger.error(`Erro na requisição para a API: ${JSON.stringify(error)}`);
       _sendSuportError(`Endpoint: ${params.url} \nStatus Code:\n ${error.code}`);
     }
   }
@@ -48,6 +52,7 @@ export class BetApi {
       },
     });
     if (response.data.error == 'PARAM_INVALID') {
+      this.logger.error(`Erro na requisição para a API: ${JSON.stringify(response.data)}`);
       _sendSuportError(`Endpoint: /event\nError: ${response.data.error}\nError Detail: ${response.data.error_detail}`);
     }
     if (filter.stast == 'goal') {

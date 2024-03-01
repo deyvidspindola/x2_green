@@ -6,4 +6,5 @@ export abstract class GameRepository implements GameInterface {
   abstract setDatabase(database: string): Promise<void>;
   abstract save(game: Game): Promise<void>;
   abstract games(filter: GameFilter): Promise<Game[]>;
+  abstract game(bet_id: number): Promise<Game>;
 }
