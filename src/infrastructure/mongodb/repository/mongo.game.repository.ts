@@ -4,11 +4,14 @@ import { Inject } from 'typescript-ioc';
 import { MongoDb } from '#/infrastructure/mongodb';
 import { _todayNow } from '#/domain/utils';
 import { GameFilter } from '#/domain/entities/filters';
+import { Logger } from '@vizir/simple-json-logger';
 
 export class MongoGameRepository implements GameInterface {
   constructor(
     @Inject
     private readonly mongoDb: MongoDb,
+    @Inject
+    private readonly logger: Logger,
   ) {}
 
   client = this.mongoDb.client();
@@ -37,7 +40,9 @@ export class MongoGameRepository implements GameInterface {
   }
 
   async save(game: Game): Promise<void> {
+    this.logger.info('Salvando game', game);
     const document = await this.collection.findOne({ bet_id: game.bet_id });
+    this.logger.info('Document', document);
     if (document) {
       await this.collection.updateOne(
         { bet_id: game.bet_id },
@@ -48,6 +53,7 @@ export class MongoGameRepository implements GameInterface {
           },
         },
       );
+      return;
     }
     await this.collection.insertOne(game);
   }
