@@ -22,11 +22,7 @@ export class MongoConfigRepository implements ConfigRepository {
   }
 
   async getLeaguesConfigs() {
-    let document = _getCache('leagues-configs');
-    if (!document) {
-      document = await this.collection.findOne({ name: 'diff-gols' });
-      _setCache('leagues-configs', document);
-    }
+    const document = await this.collection.findOne({ name: 'diff-gols' });
     return document.diff;
   }
 }
