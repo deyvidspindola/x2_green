@@ -150,10 +150,10 @@ export class DiffGolsUseCase {
     });
   }
 
-  private async getLastGoal(game_id: string): Promise<string | undefined> {
+  private async getLastGoal(game_id: string, sum: number): Promise<string | undefined> {
     try {
       const events = await this.api.events({ event_id: game_id, stast: 'goal' });
-      return _lastGoal(events.LA);
+      return _lastGoal(events.LA, sum);
     } catch (error) {
       return undefined;
     }
