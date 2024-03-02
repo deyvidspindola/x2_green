@@ -10,6 +10,9 @@ export class DiffGolsReportUseCase {
   async execute() {
     schedule('0 3 * * *', async () => {
       await this.report.sendDailyReportSendGames(_yesterday());
+    });
+
+    schedule('0 3 1 * *', async () => {
       await this.report.sendMonthlyReportSendGames();
     });
   }
