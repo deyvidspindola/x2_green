@@ -106,7 +106,7 @@ export class DiffGolsBot {
         await Container.get(DiffGolsReportUseCase).sendPartailDailyReportSendGames(ctx.chat?.id.toString());
       })
       .row()
-      .submenu('Relatorio Mensal', 'report-months')
+      .submenu('Relatorio Meses Anterior', 'report-months')
       .row()
       .text('Relatorio do Mês Atual', async (ctx) => {
         const month = moment().month();
@@ -120,19 +120,20 @@ export class DiffGolsBot {
     const reportMontsMenu = new Menu('report-months')
       .dynamic(() => {
         const range = new MenuRange();
-        for (let i = 0; i < 12; i++) {
-          range
-            .text(months[i], async (ctx) => {
-              await Container.get(DiffGolsReportUseCase).sendCurrentMonthlyReportSendGames(
-                ctx.chat?.id.toString(),
-                i.toString(),
-              );
-            })
-            .row();
+        const currentMonth = moment().month();
+        for (let i = 0; i < currentMonth; i++) {
+          range.text(months[i], async (ctx) => {
+            await Container.get(DiffGolsReportUseCase).sendCurrentMonthlyReportSendGames(
+              ctx.chat?.id.toString(),
+              i.toString(),
+            );
+          });
         }
         return range;
       })
-      .back('Voltar');
+      .row()
+      .back('Voltar')
+      .row();
 
     reportsMenu.register(reportMontsMenu);
     this.bot.use(reportsMenu);
@@ -147,7 +148,7 @@ export class DiffGolsBot {
         });
         return;
       }
-      await ctx.reply('Relatórios', { reply_markup: reportsMenu });
+      await ctx.reply('Relatórios Bot X2 Green', { reply_markup: reportsMenu });
     });
   }
 

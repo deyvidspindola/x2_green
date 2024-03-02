@@ -83,6 +83,7 @@ export class DiffGolsEditMessageUseCase {
           text =
             text +
             `
+            .\n\n
           🏆 <b>** FIM DE JOGO **</b>
           ${home} <b>${game.result.replace('-', ' x ')}</b> ${away}
           <b>Diferença de gols:</b> ${diff}

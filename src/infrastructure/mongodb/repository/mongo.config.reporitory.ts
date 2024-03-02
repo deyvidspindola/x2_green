@@ -12,20 +12,6 @@ export class MongoConfigRepository implements ConfigRepository {
   client = this.mongoDb.client();
   collection = this.client.db('portal').collection('config');
 
-  async getBotToken(bot_name: string) {
-    const document = await this.collection.findOne({ name: bot_name });
-    return document.token;
-  }
-
-  async getApiConfigs() {
-    let document = _getCache('api-configs');
-    if (!document) {
-      document = await this.collection.findOne({ name: 'api' });
-      _setCache('api-configs', document);
-    }
-    return document;
-  }
-
   async getDiffGols(league: string) {
     let document = _getCache('diff-gols');
     if (!document) {
@@ -35,8 +21,12 @@ export class MongoConfigRepository implements ConfigRepository {
     return document.diff.find((item: { league: string }) => item.league === league).gols;
   }
 
-  async getSchedule(bot_name: string) {
-    const document = await this.collection.findOne({ name: bot_name });
-    return document.schedule;
+  async getLeaguesConfigs() {
+    let document = _getCache('leagues-configs');
+    if (!document) {
+      document = await this.collection.findOne({ name: 'diff-gols' });
+      _setCache('leagues-configs', document);
+    }
+    return document.diff;
   }
 }
