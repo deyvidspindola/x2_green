@@ -102,13 +102,13 @@ export class DiffGolsBot {
     ];
 
     const reportsMenu = new Menu('reports')
-      .text('Relatorio Parcial Diario', async (ctx) => {
+      .text('Relatório Parcial Diario', async (ctx) => {
         await Container.get(DiffGolsReportUseCase).sendPartailDailyReportSendGames(ctx.chat?.id.toString());
       })
       .row()
-      .submenu('Relatorio Meses Anterior', 'report-months')
+      .submenu('Relatório Meses Anterior', 'report-months')
       .row()
-      .text('Relatorio do Mês Atual', async (ctx) => {
+      .text('Relatório do Mês Atual', async (ctx) => {
         const month = moment().month();
         await Container.get(DiffGolsReportUseCase).sendCurrentMonthlyReportSendGames(
           ctx.chat?.id.toString(),
