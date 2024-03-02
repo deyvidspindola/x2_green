@@ -15,6 +15,7 @@ export const _calcDiff = async (ss: string, league: string) => {
   return {
     diff,
     result: diff >= diffGols,
+    sum: parseInt(result[0]) + parseInt(result[1]),
   };
 };
 
@@ -37,14 +38,17 @@ export const _saveSend = (game_id: string) => {
   _setCache('hasSend', [game_id], time);
 };
 
-export const _lastGoal = (la: string) => {
+export const _lastGoal = (la: string, sum: number) => {
   const [minute, goalInfo, team] = la.split('-').map((item) => item.trim());
   const goalRegex = /(\d+)(?:st|nd|rd|th)?/;
   const goalNumberMatch = goalInfo.match(goalRegex);
   if (!goalNumberMatch) {
     return undefined;
   }
-  const goalNumber = goalNumberMatch[1];
+  let goalNumber = Number(goalNumberMatch[1]);
+  if (goalNumber < sum) {
+    goalNumber = sum;
+  }
   const formatTeam = _formatTeam(team.replace(/^\((.*)\)$/, '$1'));
   const formattedGoal = `⚽️  <b>${minute}</b> - ${goalNumber}º Gol - ${formatTeam}`;
   return formattedGoal;

@@ -101,7 +101,8 @@ export class DiffGolsUseCase {
     const home = _formatTeam(game.home.name);
     const away = _formatTeam(game.away.name);
     const title = `${home} <b>${game.ss.replace('-', ' x ')}</b> ${away}`;
-    const gol = await this.getLastGoal(game.id);
+    const { sum } = await _calcDiff(game.ss, game.league.name);
+    const gol = await this.getLastGoal(game.id, sum);
     const url = `${this.configuration.betUrl}${game.ev_id}`;
     const message = `${league}\n${title}\n${gol}\n${url}`;
     return message;
@@ -136,7 +137,7 @@ export class DiffGolsUseCase {
       this.game.save({
         bet_id: Number(game.id),
         league_id: Number(game.league.id),
-        event_id: Number(game.ev_id),
+        event_id: game.ev_id,
         league: game.league.name,
         home: game.home.name,
         away: game.away.name,

@@ -2,7 +2,7 @@ export interface Game {
   _id?: string;
   league_id: number;
   league: string;
-  event_id: number;
+  event_id: string;
   bet_id: number;
   home_id: number;
   home: string;
