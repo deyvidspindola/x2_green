@@ -5,10 +5,10 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
-    "build": "yarn run clean && ttsc -P tsconfig.build.json && copyfiles -u 1 src/**/*.json dist",
+    "build": "npm run clean && ttsc -P tsconfig.build.json && copyfiles -u 1 src/**/*.json dist",
     "clean": "rimraf dist",
     "start": "pm2 start ./dist/index.js --name x2_green",
-    "restart": "yarn build && pm2 restart x2_green",
+    "restart": "npm build && pm2 restart x2_green",
     "stop": "pm2 stop x2_green"
   },
   "author": "Deyvid Spindola",
