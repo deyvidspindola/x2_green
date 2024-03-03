@@ -10,6 +10,7 @@ import { Inject } from 'typescript-ioc';
 import { _calcDiff, _formatTeam } from './utils';
 import { DiffGolsBot } from '#/infrastructure/telegram/diff-gols';
 import { MessageFilter } from '#/domain/entities/filters';
+import { StatusCodes } from 'http-status-codes';
 
 export class DiffGolsEditMessageUseCase {
   constructor(
@@ -53,6 +54,7 @@ export class DiffGolsEditMessageUseCase {
 
       const messages = await this.message.messages(filter);
       if (!messages.length) return;
+
       this.editMessages(messages);
     } catch (error) {
       _sendSuportError('Erro ao processar o bot Diff Gols Edit Message');
@@ -94,6 +96,9 @@ export class DiffGolsEditMessageUseCase {
         }
       } catch (error) {
         _sendSuportError(`Erro ao editar mensagem\n${error.message}`);
+        if (error.error_code === StatusCodes.BAD_REQUEST) {
+          await this.message.update(message._id);
+        }
         continue;
       }
     }

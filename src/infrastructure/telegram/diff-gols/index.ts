@@ -171,12 +171,18 @@ export class DiffGolsBot {
   }
 
   async editMessage(message: EditMessage): Promise<void> {
-    this.logger.info('Bot Diff Gols telegram editMessage', { message });
-    await this.bot.api.editMessageText(message.chat_id, Number(message.message_id), message.message, {
-      parse_mode: 'HTML',
-      link_preview_options: {
-        is_disabled: true,
-      },
-    });
+    try {
+      await this.bot.api.editMessageText(message.chat_id, Number(message.message_id), message.message, {
+        parse_mode: 'HTML',
+        link_preview_options: {
+          is_disabled: true,
+        },
+      });
+    } catch (error) {
+      if (error.error_code === StatusCodes.FORBIDDEN) {
+        await this.chat.remove(Number(message.chat_id));
+      }
+      throw error;
+    }
   }
 }
