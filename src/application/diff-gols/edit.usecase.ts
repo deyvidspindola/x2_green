@@ -58,7 +58,6 @@ export class DiffGolsEditMessageUseCase {
 
       const messages = await this.message.messages(filter);
       if (!messages.length) return;
-
       this.editMessages(messages);
     } catch (error) {
       _sendSuportError('Erro ao processar o bot Diff Gols Edit Message');
