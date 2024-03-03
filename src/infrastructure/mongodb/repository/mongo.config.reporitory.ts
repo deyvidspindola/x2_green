@@ -13,7 +13,11 @@ export class MongoConfigRepository implements ConfigRepository {
   collection = this.client.db('portal').collection('config');
 
   async getDiffGols(league: string) {
-    const document = await this.collection.findOne({ name: 'diff-gols' });
+    let document = _getCache('diff-gols');
+    if (!document) {
+      document = await this.collection.findOne({ name: 'diff-gols' });
+      _setCache('diff-gols', document);
+    }
     return document.diff.find((item: { league: string }) => item.league === league).gols;
   }
 
