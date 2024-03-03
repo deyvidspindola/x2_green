@@ -38,7 +38,6 @@ export class DiffGolsUseCase {
   }
 
   private async initialize() {
-    this.looger.info('Bot Diff Gols iniciado');
     await this.bot.start();
     this.chat.setDatabase(this.configuration.botDiffGolsName);
     this.message.setDatabase(this.configuration.botDiffGolsName);
@@ -66,7 +65,6 @@ export class DiffGolsUseCase {
   }
 
   private async sendToBot(chats: Chat[], games: Inplay[]) {
-    this.looger.info('Enviando dados para o bot');
     await Promise.all(
       games.map(async (game: Inplay) => {
         if (!(await this.shouldSend(game))) return;
@@ -88,6 +86,7 @@ export class DiffGolsUseCase {
           });
           return (await msg).message_id;
         } catch (error) {
+          this.looger.error(`Erro ao enviar mensagem para o chat ${chat.chat_id}`);
           _sendSuportError(`Erro ao enviar mensagem para o chat ${chat.chat_id}`);
           return null;
         }
@@ -115,7 +114,6 @@ export class DiffGolsUseCase {
   }
 
   private async saveMessage(messageIds: (number | null)[], chats: Chat[], game: Inplay, message: string) {
-    this.looger.info('Salvando mensagem no banco de dados');
     const message_ids = messageIds.filter((id) => id !== null) as number[];
     const chat_ids = chats.map((chat) => chat.chat_id);
     await this.message.save({
@@ -132,7 +130,6 @@ export class DiffGolsUseCase {
   }
 
   private async saveGames(games: Inplay[]) {
-    this.looger.info('Salvando jogos no banco de dados');
     games.map(async (game) => {
       this.game.save({
         bet_id: Number(game.id),

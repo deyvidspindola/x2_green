@@ -26,7 +26,6 @@ export class BetApi {
           'X-RapidAPI-Host': 'betsapi2.p.rapidapi.com',
         },
       };
-      this.logger.info(`Requisições para a API: ${JSON.stringify(options)}`);
       return await axios.request(options);
     } catch (error) {
       this.logger.error(`Erro na requisição para a API: ${JSON.stringify(error)}`);

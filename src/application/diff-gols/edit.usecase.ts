@@ -9,13 +9,10 @@ import { schedule } from 'node-cron';
 import { Inject } from 'typescript-ioc';
 import { _calcDiff, _formatTeam } from './utils';
 import { DiffGolsBot } from '#/infrastructure/telegram/diff-gols';
-import { Logger } from '@vizir/simple-json-logger';
 import { MessageFilter } from '#/domain/entities/filters';
 
 export class DiffGolsEditMessageUseCase {
   constructor(
-    @Inject
-    private readonly logger: Logger,
     @Inject
     private readonly configuration: Configurations,
     @Inject
@@ -35,7 +32,6 @@ export class DiffGolsEditMessageUseCase {
   }
 
   private async initialize() {
-    this.logger.info('Bot Diff Gols edit message iniciado');
     this.chat.setDatabase(this.configuration.botDiffGolsName);
     this.message.setDatabase(this.configuration.botDiffGolsName);
     this.game.setDatabase(this.configuration.botDiffGolsName);
@@ -48,7 +44,6 @@ export class DiffGolsEditMessageUseCase {
   }
 
   private async process() {
-    this.logger.info('Bot Diff Gols edit message process');
     try {
       const filter: MessageFilter = {
         date_start: _startDate(_today()),
